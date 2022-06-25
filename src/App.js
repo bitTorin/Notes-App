@@ -31,11 +31,32 @@ export default function App() {
     }
     
     function updateNote(text) {
+        
+        // Rearrange list to show recently-modified notes at the top
+        setNotes(oldNotes => {
+            const newArray = []
+            for(let i = 0; i < oldNotes.length; i++) {
+                const oldNote = oldNotes[i]
+                if(oldNote.id === currentNoteId) {
+                    newArray.unshift({...oldNote, body: text})
+                } else {
+                    newArray.push(oldNote)
+                }
+            }
+
+            return newArray
+        })
+
         setNotes(oldNotes => oldNotes.map(oldNote => {
             return oldNote.id === currentNoteId
                 ? { ...oldNote, body: text }
                 : oldNote
         }))
+    }
+
+    function deleteNote(event, noteId) {
+        event.stopPropagation()
+        setNotes(oldNotes => oldNotes.filter(note => note.id !== noteId))
     }
     
     function findCurrentNote() {
@@ -43,7 +64,7 @@ export default function App() {
             return note.id === currentNoteId
         }) || notes[0]
     }
-    
+
     return (
         <main>
         {
@@ -59,6 +80,7 @@ export default function App() {
                     currentNote={findCurrentNote()}
                     setCurrentNoteId={setCurrentNoteId}
                     newNote={createNewNote}
+                    deleteNote={deleteNote}
                 />
                 {
                     currentNoteId && 
